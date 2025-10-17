@@ -17,14 +17,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# # Add CORS middleware
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 class ProductResponseDTO(BaseModel):
     id: int
@@ -45,7 +45,7 @@ class ProductUpdateDTO(BaseModel):
     description: str | None = None
     stock: int | None = None
 
-@app.get("/products/", response_model=List[ProductResponseDTO])
+@app.get("/products", response_model=List[ProductResponseDTO])
 async def get_products(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Product))
     products = result.scalars().all()
@@ -59,7 +59,7 @@ async def get_product_by_id(product_id: int, db: AsyncSession = Depends(get_db))
         raise HTTPException(status_code=404, detail="Product not found")
     return product
 
-@app.post("/products/", response_model=ProductResponseDTO, status_code=201)
+@app.post("/products", response_model=ProductResponseDTO, status_code=201)
 async def create_product(product: ProductCreateDTO, db: AsyncSession = Depends(get_db)):
     db_product = Product(
         name=product.name,
@@ -101,4 +101,4 @@ async def delete_product(product_id: int, db: AsyncSession = Depends(get_db)):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
