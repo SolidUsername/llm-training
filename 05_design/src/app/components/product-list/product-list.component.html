@@ -1,0 +1,193 @@
+<div class="container">
+  <div class="content-wrapper">
+    <h1 class="page-title">Product Management</h1>
+
+    <div class="header-actions">
+      <div class="search-wrapper">
+        <img src="/icons/search-icon.svg" alt="Search" class="search-icon" />
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          (input)="filterProducts()"
+          placeholder="Search products..." 
+          class="search-input" 
+        />
+      </div>
+      <button (click)="openAddDialog()" class="btn-add">
+        <span>Add Product</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <line x1="7" y1="2" x2="7" y2="12" stroke="white" stroke-width="1.17" />
+          <line x1="2" y1="7" x2="12" y2="7" stroke="white" stroke-width="1.17" />
+        </svg>
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="loading">Loading products...</div>
+    }
+
+    @if (error()) {
+      <div class="error">{{ error() }}</div>
+    }
+
+    @if (!loading() && filteredProducts().length === 0 && products().length === 0) {
+      <div class="empty-state">
+        <p>No products found. Create your first product!</p>
+        <button (click)="openAddDialog()" class="btn-add">Add Product</button>
+      </div>
+    }
+
+    @if (!loading() && filteredProducts().length > 0) {
+      <div class="product-grid">
+        @for (product of filteredProducts(); track product.id) {
+          <div class="product-card">
+            <h4 class="product-name">{{ product.name }}</h4>
+
+            <div class="product-content">
+              @if (product.description) {
+                <p class="product-description">{{ product.description }}</p>
+              }
+
+              <div class="product-meta">
+                <span class="product-price">${{ product.price.toFixed(2) }}</span>
+                <span class="product-stock">Stock: {{ product.stock }}</span>
+              </div>
+            </div>
+
+            <div class="product-actions">
+              <button (click)="openDetailDialog(product)" class="btn-action">
+                <img src="/icons/view-icon.svg" alt="View" />
+                <span>View</span>
+              </button>
+              <button (click)="openEditDialog(product)" class="btn-action">
+                <img src="/icons/edit-icon.svg" alt="Edit" />
+                <span>Edit</span>
+              </button>
+              <button (click)="confirmDelete(product)" class="btn-delete">
+                <img src="/icons/delete-icon.svg" alt="Delete" />
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (!loading() && filteredProducts().length === 0 && products().length > 0) {
+      <div class="empty-state">
+        <p>No products match your search.</p>
+      </div>
+    }
+  </div>
+
+  <!-- Detail Dialog -->
+  @if (showDetailDialog() && selectedProduct()) {
+    <div class="dialog-overlay" (click)="closeDetailDialog()">
+      <div class="dialog dialog-detail" (click)="$event.stopPropagation()">
+        <button class="close-btn" (click)="closeDetailDialog()">
+          <img src="/icons/close-icon.svg" alt="Close" />
+        </button>
+        <h2 class="dialog-title">Product Details</h2>
+        <h3 class="product-detail-name">{{ selectedProduct()!.name }}</h3>
+        <p class="product-detail-description">{{ selectedProduct()!.description }}</p>
+        <div class="separator"></div>
+        <div class="detail-row">
+          <span class="detail-label">Price:</span>
+          <span class="detail-value price-value">${{ selectedProduct()!.price.toFixed(2) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Stock:</span>
+          <span class="detail-value">{{ selectedProduct()!.stock }} units</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Product ID:</span>
+          <span class="detail-value-small">{{ selectedProduct()!.id }}</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Delete Confirmation Dialog -->
+  @if (showDeleteDialog() && selectedProduct()) {
+    <div class="dialog-overlay" (click)="closeDeleteDialog()">
+      <div class="dialog dialog-small" (click)="$event.stopPropagation()">
+        <h2 class="dialog-title">Delete Product</h2>
+        <p class="dialog-message">Are you sure you want to delete "{{ selectedProduct()!.name }}"? This action cannot be undone.</p>
+        <div class="dialog-actions">
+          <button (click)="closeDeleteDialog()" class="btn-cancel">Cancel</button>
+          <button (click)="deleteProduct()" class="btn-delete-confirm">Delete Product</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Add/Edit Product Dialog -->
+  @if (showFormDialog()) {
+    <div class="dialog-overlay" (click)="closeFormDialog()">
+      <div class="dialog dialog-form" (click)="$event.stopPropagation()">
+        <button class="close-btn" (click)="closeFormDialog()">
+          <img src="/icons/close-icon.svg" alt="Close" />
+        </button>
+        <h2 class="dialog-title">{{ isEditMode() ? 'Edit Product' : 'Add New Product' }}</h2>
+        
+        <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label for="name">Product Name</label>
+            <input 
+              type="text" 
+              id="name" 
+              formControlName="name" 
+              placeholder="Enter product name"
+              class="form-input"
+              [class.error]="productForm.get('name')?.invalid && productForm.get('name')?.touched"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea 
+              id="description" 
+              formControlName="description" 
+              rows="4"
+              placeholder="Enter product description"
+              class="form-textarea"
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="price">Price ($)</label>
+              <input 
+                type="number" 
+                id="price" 
+                formControlName="price" 
+                step="0.01"
+                placeholder="0.00"
+                class="form-input"
+                [class.error]="productForm.get('price')?.invalid && productForm.get('price')?.touched"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="stock">Stock</label>
+              <input 
+                type="number" 
+                id="stock" 
+                formControlName="stock" 
+                placeholder="0"
+                class="form-input"
+                [class.error]="productForm.get('stock')?.invalid && productForm.get('stock')?.touched"
+              />
+            </div>
+          </div>
+
+          <div class="dialog-actions">
+            <button type="button" (click)="closeFormDialog()" class="btn-cancel">Cancel</button>
+            <button type="submit" class="btn-submit" [disabled]="productForm.invalid || loading()">
+              {{ loading() ? 'Saving...' : (isEditMode() ? 'Update Product' : 'Add Product') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>
