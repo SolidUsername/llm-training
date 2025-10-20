@@ -1,0 +1,33 @@
+<div class="container" *ngIf="!loading()">
+  @if (loading()) {
+    <div class="loading">Loading product...</div>
+  }
+
+  @if (error()) {
+    <div class="error">{{ error() }}</div>
+  }
+
+  @if (product()) {
+    <div class="detail-card">
+      <div class="detail-header">
+        <h2>{{ product()!.name }}</h2>
+        <div class="price">${{ product()!.price.toFixed(2) }}</div>
+      </div>
+
+      @if (product()!.description) {
+        <p class="description">{{ product()!.description }}</p>
+      }
+
+      <div class="meta">
+        <div class="stock">Stock: <span [class.low-stock]="product()!.stock < 10">{{ product()!.stock }}</span></div>
+        <div class="id">ID: {{ product()!.id }}</div>
+      </div>
+
+      <div class="actions">
+        <button (click)="goToEdit()" class="btn btn-secondary">Edit</button>
+        <button (click)="deleteProduct()" class="btn btn-danger">Delete</button>
+        <a routerLink="/products" class="btn btn-light">Back to list</a>
+      </div>
+    </div>
+  }
+</div>
