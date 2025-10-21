@@ -2,6 +2,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
+import { CartService } from '../../services/cart.service';
 import { Product } from '../../models/product.model';
 
 @Component({
@@ -13,6 +14,7 @@ import { Product } from '../../models/product.model';
 })
 export class ProductListComponent implements OnInit {
   private productService = inject(ProductService);
+  private cartService = inject(CartService);
   private fb = inject(FormBuilder);
   
   products = signal<Product[]>([]);
@@ -42,6 +44,10 @@ export class ProductListComponent implements OnInit {
 
   ngOnInit() {
     this.loadProducts();
+    // Reload product list only when a checkout completes
+    this.cartService.cartCheckout$.subscribe(() => {
+      this.loadProducts();
+    });
   }
 
   loadProducts() {
@@ -183,5 +189,25 @@ export class ProductListComponent implements OnInit {
         }
       });
     }
+  }
+
+  addToCart(product: Product, event: Event) {
+    event.stopPropagation();
+    
+    if (product.stock < 1) {
+      this.error.set('Product out of stock');
+      return;
+    }
+
+    this.cartService.addToCart({ product_id: product.id, quantity: 1 }).subscribe({
+      next: () => {
+        // Product added to cart successfully
+        // Cart component will automatically update via the service
+      },
+      error: (err) => {
+        this.error.set('Failed to add to cart');
+        console.error('Error adding to cart:', err);
+      }
+    });
   }
 }

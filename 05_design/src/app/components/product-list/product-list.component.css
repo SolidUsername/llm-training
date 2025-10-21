@@ -192,6 +192,31 @@
   justify-content: space-between;
 }
 
+.btn-add-cart {
+  width: 31.5px;
+  height: 28px;
+  background: #030213;
+  border: none;
+  border-radius: 6.75px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  padding: 0;
+  flex-shrink: 0;
+  color: #FFFFFF;
+}
+
+.btn-add-cart:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.btn-add-cart:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .btn-action {
   display: flex;
   align-items: center;
@@ -296,8 +321,10 @@
 }
 
 .dialog-detail {
-  width: 600px;
-  min-width: 500px;
+  /* Narrower product detail dialog for improved layout */
+  width: 480px;
+  max-width: 95vw;
+  min-width: 320px;
 }
 
 .dialog-form {
@@ -631,7 +658,9 @@
   }
 }
   .dialog-detail {
-    width: 85vw;
+    /* keep dialog readable on medium screens */
+    width: 480px;
+    max-width: 95vw;
     min-width: auto;
   }
  
