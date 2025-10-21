@@ -78,6 +78,18 @@ export class CartComponent implements OnInit {
     });
   }
 
+  checkout() {
+    this.cartService.checkout().subscribe({
+      next: (cart) => {
+        // cart should now be empty
+        this.cart.set(cart);
+      },
+      error: (err) => {
+        console.error('Error during checkout:', err);
+      }
+    });
+  }
+
   getTotalItems(): number {
     return this.cart()?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
   }

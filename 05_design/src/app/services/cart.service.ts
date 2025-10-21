@@ -12,11 +12,15 @@ export class CartService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/cart`;
   private cartUpdated = new Subject<void>();
+  private cartCheckout = new Subject<void>();
 
   cartUpdated$ = this.cartUpdated.asObservable();
+  cartCheckout$ = this.cartCheckout.asObservable();
 
   getCart(): Observable<Cart> {
-    return this.http.get<Cart>(this.apiUrl);
+    return this.http.get<Cart>(this.apiUrl).pipe(
+      tap(() => this.cartUpdated.next())
+    );
   }
 
   addToCart(item: AddToCart): Observable<Cart> {
@@ -40,6 +44,14 @@ export class CartService {
   clearCart(): Observable<void> {
     return this.http.delete<void>(this.apiUrl).pipe(
       tap(() => this.cartUpdated.next())
+    );
+  }
+
+  checkout(): Observable<Cart> {
+    return this.http.post<Cart>(`${this.apiUrl}/checkout`, {}).pipe(
+      tap(() => {
+        this.cartCheckout.next();
+      })
     );
   }
 }

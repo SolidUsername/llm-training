@@ -64,7 +64,10 @@
             <span class="total-label">Total:</span>
             <span class="total-value">${{ cart()!.total.toFixed(2) }}</span>
           </div>
-          <button (click)="clearCart()" class="btn-clear">Clear Cart</button>
+          <div class="cart-footer-actions">
+            <button (click)="checkout()" class="btn-checkout">Checkout</button>
+            <button (click)="clearCart()" class="btn-clear">Clear Cart</button>
+          </div>
         </div>
       }
     </div>

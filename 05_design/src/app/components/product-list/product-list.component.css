@@ -321,8 +321,10 @@
 }
 
 .dialog-detail {
-  width: 600px;
-  min-width: 500px;
+  /* Narrower product detail dialog for improved layout */
+  width: 480px;
+  max-width: 95vw;
+  min-width: 320px;
 }
 
 .dialog-form {
@@ -656,7 +658,9 @@
   }
 }
   .dialog-detail {
-    width: 85vw;
+    /* keep dialog readable on medium screens */
+    width: 480px;
+    max-width: 95vw;
     min-width: auto;
   }
  

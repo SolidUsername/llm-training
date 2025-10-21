@@ -44,6 +44,10 @@ export class ProductListComponent implements OnInit {
 
   ngOnInit() {
     this.loadProducts();
+    // Reload product list only when a checkout completes
+    this.cartService.cartCheckout$.subscribe(() => {
+      this.loadProducts();
+    });
   }
 
   loadProducts() {

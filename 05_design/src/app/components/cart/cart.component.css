@@ -209,6 +209,26 @@
   opacity: 0.9;
 }
 
+.cart-footer-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-checkout {
+  flex: 1;
+  padding: 10px;
+  background: #2A9D8F;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-checkout:hover {
+  opacity: 0.9;
+}
+
 /* Scrollbar styling */
 .cart-content::-webkit-scrollbar {
   width: 6px;
